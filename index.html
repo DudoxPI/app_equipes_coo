@@ -185,6 +185,20 @@ h1,h2,h3{font-family:'Syne',sans-serif}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* AUTH */
+.auth-ov{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{width:100%;max-width:320px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.auth-logo{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--text);line-height:1}
+.auth-logo b{color:var(--accent)}
+.auth-box h2{font-size:20px;font-weight:700;letter-spacing:-.2px;margin-top:4px}
+.auth-box p{font-size:13px;color:var(--text-muted);margin-bottom:4px}
+.auth-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;color:var(--text);font-size:16px;outline:none;text-align:center;letter-spacing:3px;transition:border-color .2s,box-shadow .2s;font-family:'Syne',sans-serif}
+.auth-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,142,247,.12)}
+.auth-err{font-size:12px;color:var(--accent2);opacity:0;transition:opacity .2s;min-height:16px}
+.auth-btn{width:100%;background:linear-gradient(135deg,#6ba8ff,var(--accent));border:none;border-radius:var(--radius-sm);padding:14px;color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .15s,transform .15s;margin-top:4px;letter-spacing:.3px}
+.auth-btn:hover{opacity:.88}
+.auth-btn:active{transform:scale(.97)}
 </style>
 </head>
 <body>
@@ -286,6 +300,18 @@ h1,h2,h3{font-family:'Syne',sans-serif}
 <div class="load-ov" id="loadOv"><div class="spinner"></div></div>
 <div class="toast" id="toast"></div>
 
+<!-- AUTH OVERLAY -->
+<div class="auth-ov" id="authOv">
+  <div class="auth-box">
+    <div class="auth-logo">EC<b>.</b></div>
+    <h2>Equipes Coo</h2>
+    <p>Digite a senha para continuar</p>
+    <input class="auth-input" type="password" id="authInput" placeholder="••••••" onkeydown="if(event.key==='Enter')tentarLogin()"/>
+    <div class="auth-err" id="authErr">Senha incorreta</div>
+    <button class="auth-btn" onclick="tentarLogin()">Entrar</button>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════
 //  CONFIG
@@ -293,6 +319,8 @@ h1,h2,h3{font-family:'Syne',sans-serif}
 const GH_TOKEN='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';
 const GIST_ID='7b277658b1e0dbadf596f6c8ce252a7d';
 const BASE_GH='https://api.github.com/gists/';
+const SENHA='epcoo123';
+const AUTH_KEY='equipes_coo_auth';
 const DN=['Seg','Ter','Qua','Qui','Sex'];
 
 // ═══════════════════════════
@@ -652,6 +680,27 @@ async function init(){
   syncDot('ok');
 }
 init();
+
+function tentarLogin(){
+  const val=document.getElementById('authInput').value;
+  if(val===SENHA){
+    localStorage.setItem(AUTH_KEY,'ok');
+    document.getElementById('authOv').style.display='none';
+    init();
+  }else{
+    const err=document.getElementById('authErr');
+    err.style.opacity='1';
+    document.getElementById('authInput').value='';
+    setTimeout(()=>err.style.opacity='0',2000);
+  }
+}
+
+if(localStorage.getItem(AUTH_KEY)==='ok'){
+  document.getElementById('authOv').style.display='none';
+  init();
+}else{
+  setTimeout(()=>document.getElementById('authInput').focus(),100);
+}
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
